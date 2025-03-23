@@ -1,14 +1,12 @@
 package ru.kermort.praktikum.taskmanager.tasks;
 
 public class SubTask extends Task {
-    private EpicTask epicTask;
+    private final EpicTask epicTask;
 
-    public SubTask(String title, String description) {
+    public SubTask(String title, String description, EpicTask epicTask) {
         super(title, description);
-    }
-
-    public void setParentTask(EpicTask epicTask) {
         this.epicTask = epicTask;
+        epicTask.addSubTask(this);
     }
 
     public EpicTask getParentTask() {
@@ -17,6 +15,9 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        return "Sub" + super.toString();
+        return "Sub" +
+                (super.toString()).replace("}", ", ") +
+                "принадлежит эпику с id=" + epicTask.getId()
+                +"}";
     }
 }

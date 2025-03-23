@@ -23,13 +23,19 @@ public class EpicTask extends Task {
         subTasks.add(subTask);
     }
 
-    public void deleteSubTask(int id) {
+    public void updateSubTask(SubTask subTask) {
+        int index = -1;
         for (int i = 0; i < subTasks.size(); i++) {
-            if (subTasks.get(i).getId() == id) {
-                subTasks.remove(i);
+            if (subTasks.get(i).equals(subTask)) {
+                index = i;
                 break;
             }
         }
+        subTasks.add(index, subTask);
+    }
+
+    public void deleteSubTask(SubTask subTask) {
+        subTasks.remove(subTask);
     }
 
     public void clearSubTasks() {
@@ -39,8 +45,6 @@ public class EpicTask extends Task {
     @Override
     public String toString() {
         String s = super.toString();
-        return "Epic" + s +
-                "\nSubTasks:\n" + subTasks +
-                '}';
+        return "Epic" + s + "\nКоличество подзадач: " + subTasks.size() + "\n" + subTasks + '}';
     }
 }

@@ -1,9 +1,8 @@
 package ru.kermort.praktikum.taskmanager;
 
+import ru.kermort.praktikum.taskmanager.manager.TaskManager;
 import ru.kermort.praktikum.taskmanager.tasks.*;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
-
-import java.sql.SQLOutput;
 
 public class Main {
 
@@ -12,39 +11,47 @@ public class Main {
         System.out.println("Создадаем менеджер задач...");
         TaskManager tm = new TaskManager();
 
-        System.out.println("Создадем одну простую задачу...");
-        Task ct1 = new Task("Заголовок задачи 1", "Описание задачи 1");
+        System.out.println("Создадем одну задачу...");
+        Task t1 = new Task("Заголовок задачи 1", "Описание задачи 1");
         System.out.println("Добавляем созданную задачу в менеджер..."); 
-        tm.addCommonTask(ct1);
+        int t1Id = tm.addTask(t1);
 
-        System.out.println("Создаем еще одну простую задачу...");
-        Task ct2 = new Task("Заголовок задачи 2", "Описание задачи 2");
+        System.out.println("Создаем еще одну задачу...");
+        Task t2 = new Task("Заголовок задачи 2", "Описание задачи 2");
         System.out.println("Добавляем вторую созданную задачу в менеджер...");
-        tm.addCommonTask(ct2);
+        int t2Id = tm.addTask(t2);
 
         System.out.println("Создаем эпик с одной подзадачей...");
         EpicTask ep1 = new EpicTask("Заголовок эпика 1", "Описание эпика 1");
-        tm.addEpicTask(ep1);
-        SubTask st11 = new SubTask("Заголовок подзадачи 1 эпика 1", "Описание подзадачи 1 эпика 1");
-        tm.addSubTask(st11, ep1);
-
-
+        int ep1Id = tm.addEpicTask(ep1);
+        SubTask st11 = new SubTask("Заголовок подзадачи 1 эпика 1", "Описание подзадачи 1 эпика 1", tm.getEpicTask(ep1Id));
+        int st11Id = tm.addSubTask(st11);
 
         System.out.println("Создаем эпик с двумя подзадачами...");
         EpicTask ep2 = new EpicTask("Заголовок эпика 2", "Описание эпика 2");
-        tm.addEpicTask(ep2);
-        SubTask st21 = new SubTask("Заголовок подзадачи 1 эпика 2", "Описание подзадачи 1 эпика 2");
-        SubTask st22 = new SubTask("Заголовок подзадачи 2 эпика 2", "Описание подзадачи 2 эпика 2");
-        tm.addSubTask(st21, ep2);
-        tm.addSubTask(st22, ep2);
+        int ep2Id = tm.addEpicTask(ep2);
+        SubTask st21 = new SubTask("Заголовок подзадачи 1 эпика 2", "Описание подзадачи 1 эпика 2", tm.getEpicTask(ep2Id));
+        SubTask st22 = new SubTask("Заголовок подзадачи 2 эпика 2", "Описание подзадачи 2 эпика 2", tm.getEpicTask(ep2Id));
+        int st21Id = tm.addSubTask(st21);
+        int st22Id = tm.addSubTask(st22);
 
 
         System.out.println("=".repeat(100));
 
         System.out.println("Печатаем все задачи");
-        for (Task task: tm.getAllTasksList()) {
+        System.out.println("Задачи:");
+        for (Task task: tm.getAllTasks()) {
             System.out.println(task + "\n*****");
         }
+        System.out.println("Эпики:");
+        for (Task task: tm.getAllEpicTasks()) {
+            System.out.println(task + "\n*****");
+        }
+        System.out.println("Подзадачи:");
+        for (Task task: tm.getAllSubTasks()) {
+            System.out.println(task + "\n*****");
+        }
+
         System.out.println("=".repeat(100));
 
         System.out.println("Выполняем подзадачу 1 эпика 1 и подзадачу 1 эпика 2...");
@@ -65,10 +72,10 @@ public class Main {
         System.out.println(ep2);
         System.out.println("=".repeat(100));
 
-        System.out.println("Удаляем обычную задачу 2");
-        tm.deleteCommonTask(ct2.getId());
-        System.out.println("Печатаем все обычные задачи");
-        System.out.println(tm.getAllCommonTasks());
+        System.out.println("Удаляем задачу 2");
+        tm.deleteTask(t2.getId());
+        System.out.println("Печатаем все задачи");
+        System.out.println(tm.getAllTasks());
         System.out.println("=".repeat(100));
 
         System.out.println("Удалаяем эпик 2");
@@ -83,12 +90,22 @@ public class Main {
         System.out.println(tm.getAllEpicTasks());
         System.out.println("=".repeat(100));
 
-        System.out.println("Удаляем все обычные задачи");
-        tm.deleteAllCommonTasks();
+        System.out.println("Удаляем все задачи");
+        tm.deleteAllTasks();
         System.out.println("Добавляем подзадачу 3 к эпику 1");
-        tm.addSubTask(new SubTask("Заголовок подзадачи 3 эпика 1", "Описание подзадачи 3 эпика 1"), ep1);
+        tm.addSubTask(new SubTask("Заголовок подзадачи 3 эпика 1", "Описание подзадачи 3 эпика 1", ep1));
+
         System.out.println("Печатаем все, что осталось");
-        for (Task task: tm.getAllTasksList()) {
+        System.out.println("Задачи:");
+        for (Task task: tm.getAllTasks()) {
+            System.out.println(task + "\n*****");
+        }
+        System.out.println("Эпики:");
+        for (Task task: tm.getAllEpicTasks()) {
+            System.out.println(task + "\n*****");
+        }
+        System.out.println("Подзадачи:");
+        for (Task task: tm.getAllSubTasks()) {
             System.out.println(task + "\n*****");
         }
         System.out.println("=".repeat(100));

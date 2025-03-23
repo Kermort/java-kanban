@@ -1,4 +1,4 @@
-package ru.kermort.praktikum.taskmanager;
+package ru.kermort.praktikum.taskmanager.manager;
 
 import ru.kermort.praktikum.taskmanager.tasks.*;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
@@ -11,28 +11,13 @@ import java.util.Set;
 import java.util.HashSet;
 
 public class TaskManager {
-    private int nextId;
-    private final Map<Integer, Task> commonTasks;
-    private final Map<Integer, EpicTask> epicTasks;
-    private final Map<Integer, SubTask> subTasks;
+    private int nextId = 1;
+    private final Map<Integer, Task> tasks = new HashMap<>();
+    private final Map<Integer, EpicTask> epicTasks = new HashMap<>();
+    private final Map<Integer, SubTask> subTasks = new HashMap<>();
 
-    public TaskManager() {
-        nextId = 1;
-        commonTasks = new HashMap<>();
-        epicTasks = new HashMap<>();
-        subTasks = new HashMap<>();
-    }
-
-    public List<Task> getAllTasksList() {
-        ArrayList<Task> result = new ArrayList<>();
-        result.addAll(commonTasks.values());
-        result.addAll(epicTasks.values());
-        result.addAll(subTasks.values());
-        return result;
-    }
-
-    public List<Task> getAllCommonTasks() {
-        return new ArrayList<>(commonTasks.values());
+    public List<Task> getAllTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
     public List<EpicTask> getAllEpicTasks() {
@@ -43,8 +28,8 @@ public class TaskManager {
         return new ArrayList<>(subTasks.values());
     }
 
-    public void deleteAllCommonTasks() {
-        commonTasks.clear();
+    public void deleteAllTasks() {
+        tasks.clear();
     }
 
     public void deleteAllEpicTasks() {
@@ -53,25 +38,15 @@ public class TaskManager {
     }
 
     public void deleteAllSubTasks() {
-        List<EpicTask> parentTasks = new ArrayList<>();
-        for (SubTask st: subTasks.values()) {
-            parentTasks.add(st.getParentTask());
-        }
-        for (EpicTask et: parentTasks) {
+        for (EpicTask et: epicTasks.values()) {
             et.clearSubTasks();
             calculateEpicTaskStatus(et);
         }
         subTasks.clear();
     }
 
-    public void deleteAllTasks() {
-        commonTasks.clear();
-        epicTasks.clear();
-        subTasks.clear();
-    }
-
-    public void deleteCommonTask(int id) {
-        commonTasks.remove(id);
+    public void deleteTask(int id) {
+        tasks.remove(id);
     }
 
     public void deleteEpicTask(int id) {
@@ -92,13 +67,13 @@ public class TaskManager {
         }
 
         EpicTask parentTask = subTasks.get(id).getParentTask();
+        parentTask.deleteSubTask(subTasks.get(id));
         subTasks.remove(id);
-        parentTask.deleteSubTask(id);
         calculateEpicTaskStatus(parentTask);
     }
 
-    public Task getCommonTask(int id) {
-        return commonTasks.get(id);
+    public Task getTask(int id) {
+        return tasks.get(id);
     }
 
     public EpicTask getEpicTask(int id) {
@@ -113,41 +88,47 @@ public class TaskManager {
         return nextId++;
     }
 
-    public void addCommonTask(Task newTask) {
+    public int addTask(Task newTask) {
         newTask.setId(getNextId());
-        commonTasks.put(newTask.getId(), newTask);
+        tasks.put(newTask.getId(), newTask);
+        return newTask.getId();
     }
 
-    public void addSubTask(SubTask newSubTask, EpicTask epicTask) {
-        if (!epicTasks.containsKey(epicTask.getId())) {
-            return;
-        }
-
+    public int addSubTask(SubTask newSubTask) {
         newSubTask.setId(getNextId());
         subTasks.put(newSubTask.getId(), newSubTask);
-        epicTask.addSubTask(newSubTask);
-        newSubTask.setParentTask(epicTask);
-        calculateEpicTaskStatus(epicTask);
+        calculateEpicTaskStatus(newSubTask.getParentTask());
+        return newSubTask.getId();
     }
 
-    public void addEpicTask(EpicTask newEpicTask) {
+    public int addEpicTask(EpicTask newEpicTask) {
         newEpicTask.setId(getNextId());
         epicTasks.put(newEpicTask.getId(), newEpicTask);
+        return newEpicTask.getId();
     }
 
-    public void updateCommonTask(int id, Task task) {
-        if (!commonTasks.containsKey(id)) {
+    public void updateTask(int id, Task task) {
+        if (!tasks.containsKey(id)) {
             return;
         }
-        commonTasks.put(id, task);
+        tasks.put(id, task);
     }
 
     public void updateSubTask(int id, SubTask subTask) {
         if (!subTasks.containsKey(id)) {
             return;
         }
+        EpicTask parentTask = subTask.getParentTask();
         subTasks.put(id, subTask);
-        calculateEpicTaskStatus(subTask.getParentTask());
+        parentTask.updateSubTask(subTask);
+        calculateEpicTaskStatus(parentTask);
+    }
+
+    public void updateEpicTask(int id, EpicTask epicTask) {
+        if (!epicTasks.containsKey(id)) {
+            return;
+        }
+        epicTasks.put(id, epicTask);
     }
 
     private void calculateEpicTaskStatus(EpicTask epicTask) {

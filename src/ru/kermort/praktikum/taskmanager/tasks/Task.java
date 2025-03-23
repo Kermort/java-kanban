@@ -4,10 +4,10 @@ import java.util.Objects;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
 
 public class Task {
-    private String title;
-    private String description;
-    private int id;
-    private TaskStatus status;
+    protected String title;
+    protected String description;
+    protected int id;
+    protected TaskStatus status;
 
     public Task(String title, String description) {
         this.title = title;
@@ -31,17 +31,11 @@ public class Task {
 
     @Override
     public String toString() {
-        String descriptionLength;
-        if (description != null) {
-            descriptionLength = "description.length=" + description.length();
-        } else {
-            descriptionLength = "description.length=0";
-        }
         return "Task{" +
                 "title='" + title + '\'' +
                 ", id=" + id +
                 ", status=" + status +
-                ", " + descriptionLength +
+                ", description='" + description + "'" +
                 '}';
     }
 
@@ -59,5 +53,21 @@ public class Task {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
