@@ -107,28 +107,29 @@ public class TaskManager {
         return newEpicTask.getId();
     }
 
-    public void updateTask(int id, Task task) {
-        if (!tasks.containsKey(id)) {
+    public void updateTask(Task task) {
+        if (!tasks.containsKey(task.getId())) {
             return;
         }
-        tasks.put(id, task);
+        tasks.put(task.getId(), task);
     }
 
-    public void updateSubTask(int id, SubTask subTask) {
-        if (!subTasks.containsKey(id)) {
+    public void updateSubTask(SubTask subTask) {
+        if (!subTasks.containsKey(subTask.getId())) {
             return;
         }
         EpicTask parentTask = subTask.getParentTask();
-        subTasks.put(id, subTask);
+        subTasks.put(subTask.getId(), subTask);
         parentTask.updateSubTask(subTask);
         calculateEpicTaskStatus(parentTask);
     }
 
-    public void updateEpicTask(int id, EpicTask epicTask) {
-        if (!epicTasks.containsKey(id)) {
+    public void updateEpicTask(EpicTask epicTask) {
+        if (!epicTasks.containsKey(epicTask.getId())) {
             return;
         }
-        epicTasks.put(id, epicTask);
+        epicTasks.get(epicTask.getId()).setTitle(epicTask.getTitle());
+        epicTasks.get(epicTask.getId()).setDescription(epicTask.getDescription());
     }
 
     private void calculateEpicTaskStatus(EpicTask epicTask) {

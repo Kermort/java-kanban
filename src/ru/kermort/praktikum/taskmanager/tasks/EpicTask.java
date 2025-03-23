@@ -16,7 +16,7 @@ public class EpicTask extends Task {
     }
 
     public boolean hasSubTasks() {
-        return subTasks.size() != 0;
+        return !subTasks.isEmpty();
     }
 
     public void addSubTask(SubTask subTask) {
@@ -24,14 +24,8 @@ public class EpicTask extends Task {
     }
 
     public void updateSubTask(SubTask subTask) {
-        int index = -1;
-        for (int i = 0; i < subTasks.size(); i++) {
-            if (subTasks.get(i).equals(subTask)) {
-                index = i;
-                break;
-            }
-        }
-        subTasks.add(index, subTask);
+        subTasks.remove(subTask);
+        subTasks.add(subTask);
     }
 
     public void deleteSubTask(SubTask subTask) {

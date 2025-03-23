@@ -57,8 +57,8 @@ public class Main {
         System.out.println("Выполняем подзадачу 1 эпика 1 и подзадачу 1 эпика 2...");
         st11.setStatus(TaskStatus.DONE);
         st21.setStatus(TaskStatus.DONE);
-        tm.updateSubTask(st11.getId(), st11);
-        tm.updateSubTask(st21.getId(), st21);
+        tm.updateSubTask(st11);
+        tm.updateSubTask(st21);
 
         System.out.println("Печатаем все эпики (эпик 1 должен стать DONE, эпик 2 - IN_PROGRESS)");
         for (Task task: tm.getAllEpicTasks()) {
