@@ -1,6 +1,6 @@
 package ru.kermort.praktikum.taskmanager;
 
-import ru.kermort.praktikum.taskmanager.manager.TaskManager;
+import ru.kermort.praktikum.taskmanager.manager.InMemoryTaskManager;
 import ru.kermort.praktikum.taskmanager.tasks.*;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
 
@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Поехали!");
         System.out.println("Создадаем менеджер задач...");
-        TaskManager tm = new TaskManager();
+        InMemoryTaskManager tm = new InMemoryTaskManager();
 
         System.out.println("Создадем одну задачу...");
         Task t1 = new Task("Заголовок задачи 1", "Описание задачи 1");
