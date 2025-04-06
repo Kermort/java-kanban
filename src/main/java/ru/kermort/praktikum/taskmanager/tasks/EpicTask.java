@@ -15,7 +15,7 @@ public class EpicTask extends Task {
         super(epicTask);
         List<SubTask> temp = new ArrayList<>();
         for (SubTask st: epicTask.getSubTasks()) {
-            temp.add(new SubTask(st, epicTask));
+            temp.add(new SubTask(st, this));
         }
         subTasks = temp;
     }
