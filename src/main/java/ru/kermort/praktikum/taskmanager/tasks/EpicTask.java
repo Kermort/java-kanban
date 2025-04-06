@@ -13,12 +13,11 @@ public class EpicTask extends Task {
 
     public EpicTask(EpicTask epicTask) {
         super(epicTask);
-//        List<SubTask> temp = new ArrayList<>();
-//        for (SubTask st: epicTask.getSubTasks()) {
-//            temp.add(new SubTask(st, epicTask));
-//        }
-//        subTasks = temp;
-        this.subTasks = new ArrayList<>();
+        List<SubTask> temp = new ArrayList<>();
+        for (SubTask st: epicTask.getSubTasks()) {
+            temp.add(new SubTask(st, epicTask));
+        }
+        subTasks = temp;
     }
 
     public List<SubTask> getSubTasks() {
