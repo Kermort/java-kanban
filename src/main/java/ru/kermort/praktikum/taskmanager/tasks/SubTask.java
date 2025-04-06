@@ -9,6 +9,11 @@ public class SubTask extends Task {
         epicTask.addSubTask(this);
     }
 
+    public SubTask(SubTask subTask, EpicTask epicTask) {
+        super(subTask);
+        this.epicTask = epicTask;
+    }
+
     public EpicTask getParentTask() {
         return epicTask;
     }

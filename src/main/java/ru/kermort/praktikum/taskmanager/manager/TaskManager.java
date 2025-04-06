@@ -1,8 +1,6 @@
 package ru.kermort.praktikum.taskmanager.manager;
 
-import ru.kermort.praktikum.taskmanager.tasks.EpicTask;
-import ru.kermort.praktikum.taskmanager.tasks.SubTask;
-import ru.kermort.praktikum.taskmanager.tasks.Task;
+import ru.kermort.praktikum.taskmanager.tasks.*;
 
 import java.util.List;
 

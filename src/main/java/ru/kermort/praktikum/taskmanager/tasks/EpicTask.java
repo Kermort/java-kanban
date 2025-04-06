@@ -11,6 +11,15 @@ public class EpicTask extends Task {
         subTasks = new ArrayList<>();
     }
 
+    public EpicTask(EpicTask epicTask) {
+        super(epicTask);
+        List<SubTask> temp = new ArrayList<>();
+        for (SubTask st: epicTask.getSubTasks()) {
+            temp.add(new SubTask(st, epicTask));
+        }
+        subTasks = temp;
+    }
+
     public List<SubTask> getSubTasks() {
         return new ArrayList<>(subTasks);
     }

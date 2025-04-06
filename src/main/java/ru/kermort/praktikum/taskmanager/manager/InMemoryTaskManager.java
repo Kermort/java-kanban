@@ -1,17 +1,17 @@
 package ru.kermort.praktikum.taskmanager.manager;
 
+import ru.kermort.praktikum.taskmanager.history.HistoryManager;
 import ru.kermort.praktikum.taskmanager.tasks.*;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
 
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private static int HISTORY_LIMIT = 10;
     private int nextId = 1;
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, EpicTask> epicTasks = new HashMap<>();
     private final Map<Integer, SubTask> subTasks = new HashMap<>();
-    private final List<Task> history = new LinkedList<>();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public List<Task> getAllTasks() {
@@ -80,16 +80,28 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int id) {
+        if (!tasks.containsKey(id)) {
+            return null;
+        }
+        historyManager.add(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
     public EpicTask getEpicTask(int id) {
+        if (!epicTasks.containsKey(id)) {
+            return null;
+        }
+        historyManager.add(epicTasks.get(id));
         return epicTasks.get(id);
     }
 
     @Override
     public SubTask getSubTask(int id) {
+        if (!subTasks.containsKey(id)) {
+            return null;
+        }
+        historyManager.add(subTasks.get(id));
         return subTasks.get(id);
     }
 
@@ -145,7 +157,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getHistory() {
-        return history;
+        return historyManager.getHistory();
     }
 
     private void calculateEpicTaskStatus(EpicTask epicTask) {

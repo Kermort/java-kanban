@@ -16,6 +16,14 @@ public class Task {
         id = 0;
     }
 
+    public Task(Task task) {
+        title = task.getTitle();
+        description = task.getDescription();
+        id = task.getId();
+        status = task.getStatus();
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
