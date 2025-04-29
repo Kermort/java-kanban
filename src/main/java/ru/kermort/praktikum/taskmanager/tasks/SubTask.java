@@ -24,6 +24,6 @@ public class SubTask extends Task {
         return "Sub" +
                 (super.toString()).replace("}", ", ") +
                 "принадлежит эпику с id=" + epicTaskId
-                +"}";
+                + "}";
     }
 }
