@@ -51,6 +51,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(int id) {
         tasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -58,12 +59,13 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epicTasks.containsKey(id)) {
             return;
         }
-
-        List<SubTask> childTasks = epicTasks.get(id).getSubTasks();
-        for (SubTask subTask: childTasks) {
-            subTasks.remove(subTask.getId());
+        List<Integer> childTasksIds = epicTasks.get(id).getSubTasksIds();
+        for (int subTaskId: childTasksIds) {
+            subTasks.remove(subTaskId);
+            historyManager.remove(subTaskId);
         }
         epicTasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -72,10 +74,11 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
 
-        EpicTask parentTask = subTasks.get(id).getParentTask();
-        parentTask.deleteSubTask(subTasks.get(id));
+        EpicTask parentTask = epicTasks.get(subTasks.get(id).getParentTaskId());
+        parentTask.deleteSubTaskId(id);
         subTasks.remove(id);
         calculateEpicTaskStatus(parentTask);
+        historyManager.remove(id);
     }
 
     @Override
@@ -114,9 +117,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addSubTask(SubTask newSubTask) {
-        newSubTask.setId(getNextId());
-        subTasks.put(newSubTask.getId(), newSubTask);
-        calculateEpicTaskStatus(newSubTask.getParentTask());
+        int id = getNextId();
+        newSubTask.setId(id);
+        subTasks.put(id, newSubTask);
+        int parentTaskId = newSubTask.getParentTaskId();
+        epicTasks.get(parentTaskId).addSubTaskId(id);
+        calculateEpicTaskStatus(epicTasks.get(newSubTask.getParentTaskId()));
         return newSubTask.getId();
     }
 
@@ -140,10 +146,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (!subTasks.containsKey(subTask.getId())) {
             return;
         }
-        EpicTask parentTask = subTask.getParentTask();
         subTasks.put(subTask.getId(), subTask);
-        parentTask.updateSubTask(subTask);
-        calculateEpicTaskStatus(parentTask);
+
+        calculateEpicTaskStatus(epicTasks.get(subTask.getParentTaskId()));
     }
 
     @Override
@@ -167,8 +172,8 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         Set<TaskStatus> s = new HashSet<>();
-        for (SubTask st: epicTask.getSubTasks()) {
-            s.add(st.getStatus());
+        for (int stId: epicTask.getSubTasksIds()) {
+            s.add(subTasks.get(stId).getStatus());
         }
 
         if (s.size() == 1 && s.contains(TaskStatus.NEW)) {

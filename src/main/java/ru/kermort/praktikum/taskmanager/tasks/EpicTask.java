@@ -4,51 +4,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EpicTask extends Task {
-    private final List<SubTask> subTasks;
+    private final List<Integer> subTasksIds;
 
     public EpicTask(String title, String description) {
         super(title, description);
-        subTasks = new ArrayList<>();
+        subTasksIds = new ArrayList<>();
     }
 
     public EpicTask(EpicTask epicTask) {
         super(epicTask);
-        List<SubTask> temp = new ArrayList<>();
-        subTasks = temp;
-        for (SubTask st: epicTask.getSubTasks()) {
-            temp.add(new SubTask(st, this));
-        }
-
+        subTasksIds = new ArrayList<>(epicTask.getSubTasksIds());
     }
 
-    public List<SubTask> getSubTasks() {
-        return new ArrayList<>(subTasks);
+    public List<Integer> getSubTasksIds() {
+        return new ArrayList<>(subTasksIds);
     }
 
     public boolean hasSubTasks() {
-        return !subTasks.isEmpty();
+        return !subTasksIds.isEmpty();
     }
 
-    public void addSubTask(SubTask subTask) {
-        subTasks.add(subTask);
+    public void addSubTaskId(Integer subTaskId) {
+        subTasksIds.add(subTaskId);
     }
 
-    public void updateSubTask(SubTask subTask) {
-        subTasks.remove(subTask);
-        subTasks.add(subTask);
-    }
-
-    public void deleteSubTask(SubTask subTask) {
-        subTasks.remove(subTask);
+    public void deleteSubTaskId(Integer subTaskId) {
+        subTasksIds.remove(subTaskId);
     }
 
     public void clearSubTasks() {
-        subTasks.clear();
+        subTasksIds.clear();
     }
 
     @Override
     public String toString() {
         String s = super.toString();
-        return "Epic" + s + "\nКоличество подзадач: " + subTasks.size() + "\n" + subTasks + '}';
+        return "Epic" + s + ". Количество подзадач: " + subTasksIds.size() + " id подзадач: " + subTasksIds + '}';
     }
 }

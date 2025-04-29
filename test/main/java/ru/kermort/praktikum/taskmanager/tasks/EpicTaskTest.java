@@ -9,20 +9,13 @@ public class EpicTaskTest {
     @Test
     void constructorTest() {
         EpicTask initialEpicTask = new EpicTask("title", "description");
-        SubTask initialsubTask = new SubTask("title", "description", initialEpicTask);
-
+        SubTask initialsubTask = new SubTask("title", "description", initialEpicTask.getId());
         EpicTask copiedEpicTask = new EpicTask(initialEpicTask);
 
         assertNotSame(initialEpicTask, copiedEpicTask,
-                "переменные initialEpicTask и copiedEpicTask ссылаются на один и тот же объект");
+                "начальный эпик и его копия не должны быть одним и тем же объектом");
 
-        assertNotSame(initialEpicTask.getSubTasks().get(0), copiedEpicTask.getSubTasks().get(0),
-                "в эпике содержатся одни и те же объекты подзадач");
-
-        assertSame(copiedEpicTask.getSubTasks().get(0).getParentTask(), copiedEpicTask,
-                "подзадача из скопированного эпика ссылается непонятно на что");
-
-        assertNotSame(initialEpicTask.getSubTasks(), copiedEpicTask.getSubTasks(),
+        assertNotSame(initialEpicTask.getSubTasksIds(), copiedEpicTask.getSubTasksIds(),
                 "начальный и скопированнй эпик ссылается на один и тот эе список подзадач");
     }
 
@@ -32,6 +25,7 @@ public class EpicTaskTest {
         EpicTask epicTask2 = new EpicTask("заголовок", "описание");
         epicTask1.setId(1);
         epicTask2.setId(1);
+
         assertEquals(epicTask1, epicTask2, "эпики с одинаковым id не равны");
     }
 
