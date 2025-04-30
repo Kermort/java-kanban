@@ -20,6 +20,7 @@ public class TaskTest {
         Task task2 = new Task("заголовок", "описание");
         task1.setId(1);
         task2.setId(1);
+
         assertEquals(task1, task2, "задачи с одинаковым id не равны");
     }
 }

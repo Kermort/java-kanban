@@ -53,8 +53,8 @@ public class InMemoryTaskManagerTest {
     @Test
     void addNewSubTask() {
         EpicTask epicTask = new EpicTask("Test addTask", "Test addTask description");
-
-        SubTask subTask = new SubTask("Test addSubTask", "Test addSubTask description", epicTask);
+        tm.addEpicTask(epicTask);
+        SubTask subTask = new SubTask("Test addSubTask", "Test addSubTask description", epicTask.getId());
         int subTaskId = tm.addSubTask(subTask);
         SubTask savedTask = tm.getSubTask(subTaskId);
         List<SubTask> tasks = tm.getAllSubTasks();
@@ -91,23 +91,24 @@ public class InMemoryTaskManagerTest {
         assertTrue(epicTaskInitialState.getId() == epicTaskFromManager.getId()
                 && epicTaskInitialState.getTitle().equals(epicTaskFromManager.getTitle())
                 && epicTaskInitialState.getDescription().equals(epicTaskFromManager.getDescription())
-                && epicTaskInitialState.getSubTasks().equals(epicTaskFromManager.getSubTasks()),
+                && epicTaskInitialState.getSubTasksIds().equals(epicTaskFromManager.getSubTasksIds()),
                 "некоторые поля эпика изменились при добавлении ее в менеджер");
     }
 
     @Test
     void subTaskFieldsDontChangeAfterAddToManagerTest() {
         EpicTask epicTask = new EpicTask("Заголовок эпика 1", "Описание эпика 1");
-        SubTask subTask = new SubTask("Заголовок подзадачи 1", "Описание подзадачи 1", epicTask);
-        SubTask subTaskInitialState = new SubTask(subTask, epicTask);
-        subTaskInitialState.setId(1);
+        tm.addEpicTask(epicTask);
+        SubTask subTask = new SubTask("Заголовок подзадачи 1", "Описание подзадачи 1", epicTask.getId());
+        SubTask subTaskInitialState = new SubTask(subTask);
+        subTaskInitialState.setId(2);
         int subTaskId = tm.addSubTask(subTask);
         SubTask subTaskFromManager = tm.getSubTask(subTaskId);
 
         assertTrue(subTaskInitialState.getId() == subTaskFromManager.getId()
                 && subTaskInitialState.getTitle().equals(subTaskFromManager.getTitle())
                 && subTaskInitialState.getDescription().equals(subTaskFromManager.getDescription())
-                && subTaskInitialState.getParentTask().equals(subTaskFromManager.getParentTask()),
+                && subTaskInitialState.getParentTaskId() == subTaskFromManager.getParentTaskId(),
                 "некоторые поля подзадачи изменились при добавлении ее в менеджер");
     }
 
@@ -127,13 +128,13 @@ public class InMemoryTaskManagerTest {
 
         EpicTask ep1 = new EpicTask("Заголовок эпика 1", "Описание эпика 1");
         int ep1Id = tm.addEpicTask(ep1);
-        SubTask st11 = new SubTask("Заголовок подзадачи 1 эпика 1", "Описание подзадачи 1 эпика 1", ep1);
+        SubTask st11 = new SubTask("Заголовок подзадачи 1 эпика 1", "Описание подзадачи 1 эпика 1", ep1.getId());
         int st11Id = tm.addSubTask(st11);
 
         EpicTask ep2 = new EpicTask("Заголовок эпика 2", "Описание эпика 2");
         int ep2Id = tm.addEpicTask(ep2);
-        SubTask st21 = new SubTask("Заголовок подзадачи 1 эпика 2", "Описание подзадачи 1 эпика 2", ep2);
-        SubTask st22 = new SubTask("Заголовок подзадачи 2 эпика 2", "Описание подзадачи 2 эпика 2", ep2);
+        SubTask st21 = new SubTask("Заголовок подзадачи 1 эпика 2", "Описание подзадачи 1 эпика 2", ep2.getId());
+        SubTask st22 = new SubTask("Заголовок подзадачи 2 эпика 2", "Описание подзадачи 2 эпика 2", ep2.getId());
         int st21Id = tm.addSubTask(st21);
         int st22Id = tm.addSubTask(st22);
 
@@ -153,5 +154,15 @@ public class InMemoryTaskManagerTest {
 
         tm.deleteAllSubTasks();
         assertEquals(TaskStatus.NEW, ep1.getStatus(), "Эпик 1 должен стать NEW");
+    }
+
+    @Test
+    void subTaskIdShouldBeRemovedFromEpicIfSubTaskRemoved() {
+        int ep1Id = tm.addEpicTask(new EpicTask("epic title 1", "epic description 1"));
+        int st1Id = tm.addSubTask(new SubTask("sub task title 1", "sub task description 1", ep1Id));
+        tm.deleteSubTask(st1Id);
+
+        assertFalse(tm.getEpicTask(ep1Id).getSubTasksIds().contains(st1Id),
+                "в эпике остался id подзадачи после ее удаления");
     }
 }
