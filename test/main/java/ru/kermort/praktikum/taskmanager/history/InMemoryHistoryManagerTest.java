@@ -98,4 +98,29 @@ public class InMemoryHistoryManagerTest {
         assertEquals(tm.getHistory().size(), 0, "история должна быть пуста");
     }
 
+    @Test
+    void tasksShouldBeRemovedFromHistoryIfDeleteAllMethodInvoked() {
+        int t1Id = tm.addTask(new Task("t1","d"));
+        int t2Id = tm.addTask(new Task("t2","d"));
+        int ep1Id = tm.addEpicTask(new EpicTask("ep1", "d"));
+        int ep2Id = tm.addEpicTask(new EpicTask("ep2", "d"));
+        int st1Id = tm.addSubTask(new SubTask("st1", "d", ep1Id));
+        int st2Id = tm.addSubTask(new SubTask("st2", "d", ep1Id));
+
+        tm.getTask(t1Id);
+        tm.getTask(t2Id);
+        tm.deleteAllTasks();
+        assertEquals(tm.getHistory().size(), 0, "история должна быть пустой");
+
+        tm.getSubTask(st1Id);
+        tm.getSubTask(st2Id);
+        tm.deleteAllSubTasks();
+        assertEquals(tm.getHistory().size(), 0, "история должна быть пустой");
+
+        tm.getEpicTask(ep1Id);
+        tm.getEpicTask(ep2Id);
+        tm.deleteAllEpicTasks();
+        assertEquals(tm.getHistory().size(), 0, "история должна быть пустой");
+    }
+
 }
