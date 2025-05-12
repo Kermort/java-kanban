@@ -1,15 +1,16 @@
 package ru.kermort.praktikum.taskmanager.tasks;
 
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
+
 public class SubTask extends Task {
     private final int epicTaskId;
 
-    //конструктор для создания нового объекта
     public SubTask(String title, String description, int epicTaskId) {
         super(title, description);
         this.epicTaskId = epicTaskId;
+        taskType = TaskType.SUBTASK;
     }
 
-    //конструктор для создания копии объекта
     public SubTask(SubTask subTask) {
         super(subTask);
         epicTaskId = subTask.getParentTaskId();

@@ -1,5 +1,6 @@
 package ru.kermort.praktikum.taskmanager.history;
 
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
 import ru.kermort.praktikum.taskmanager.tasks.EpicTask;
 import ru.kermort.praktikum.taskmanager.tasks.SubTask;
 import ru.kermort.praktikum.taskmanager.tasks.Task;
@@ -15,13 +16,13 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (task == null) {
             return;
         }
-        if (task instanceof EpicTask) {
+        if (task.getTaskType() == TaskType.EPIC) {
             EpicTask epicTaskCopy = new EpicTask((EpicTask) task);
             if (historyList.containsKey(epicTaskCopy.getId())) {
                 remove(epicTaskCopy.getId());
             }
             linkLast(epicTaskCopy);
-        } else if (task instanceof SubTask) {
+        } else if (task.getTaskType() == TaskType.SUBTASK) {
             SubTask subTaskCopy = new SubTask((SubTask) task);
             if (historyList.containsKey(subTaskCopy.getId())) {
                 remove(subTaskCopy.getId());
