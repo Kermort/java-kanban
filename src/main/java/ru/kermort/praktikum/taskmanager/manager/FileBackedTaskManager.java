@@ -13,10 +13,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private final File file;
+    public static final String HEADER = "id,type,name,status,description,epic\n";
 
     public FileBackedTaskManager(File file) {
         super();
@@ -27,22 +27,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return file;
     }
 
-    private void save() {
+    public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             StringBuilder sb = new StringBuilder();
-            sb.append("id,type,name,status,description,epic\n");
-            for (Map.Entry<Integer, Task> entry: tasks.entrySet()) {
-                Task task = entry.getValue();
+            if (getAllTasks().size() != 0 || getAllEpicTasks().size() != 0 || getAllSubTasks().size() != 0) {
+                sb.append(HEADER);
+            }
+            for (Task task: tasks.values()) {
                 sb.append(toString(task));
             }
 
-            for (Map.Entry<Integer, EpicTask> entry: epicTasks.entrySet()) {
-                EpicTask epicTask = entry.getValue();
+            for (EpicTask epicTask: epicTasks.values()) {
                 sb.append(toString(epicTask));
             }
 
-            for (Map.Entry<Integer, SubTask> entry: subTasks.entrySet()) {
-                SubTask subTask = entry.getValue();
+            for (SubTask subTask: subTasks.values()) {
                 sb.append(toString(subTask));
             }
 
@@ -183,7 +182,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         return id;
     }
 
-    public String toString(Task task) {
+    private String toString(Task task) {
         String parentTaskId = "";
         if (task.getTaskType() == TaskType.SUBTASK) {
             parentTaskId = String.valueOf(((SubTask) task).getParentTaskId());
