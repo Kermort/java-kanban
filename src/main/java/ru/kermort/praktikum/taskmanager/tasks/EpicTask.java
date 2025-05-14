@@ -1,5 +1,7 @@
 package ru.kermort.praktikum.taskmanager.tasks;
 
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ public class EpicTask extends Task {
     public EpicTask(String title, String description) {
         super(title, description);
         subTasksIds = new ArrayList<>();
+        taskType = TaskType.EPIC;
     }
 
     public EpicTask(EpicTask epicTask) {

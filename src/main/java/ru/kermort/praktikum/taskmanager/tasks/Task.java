@@ -2,17 +2,20 @@ package ru.kermort.praktikum.taskmanager.tasks;
 
 import java.util.Objects;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
 
 public class Task {
     protected String title;
     protected String description;
     protected int id;
     protected TaskStatus status;
+    protected TaskType taskType;
 
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
         status = TaskStatus.NEW;
+        taskType = TaskType.TASK;
         id = 0;
     }
 
@@ -21,7 +24,7 @@ public class Task {
         description = task.getDescription();
         id = task.getId();
         status = task.getStatus();
-
+        taskType = task.getTaskType();
     }
 
     @Override
@@ -77,5 +80,9 @@ public class Task {
 
     public String getDescription() {
         return description;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
     }
 }
