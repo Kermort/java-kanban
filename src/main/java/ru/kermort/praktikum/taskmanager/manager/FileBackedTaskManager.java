@@ -30,7 +30,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             StringBuilder sb = new StringBuilder();
-            if (getAllTasks().size() != 0 || getAllEpicTasks().size() != 0 || getAllSubTasks().size() != 0) {
+            if (!getAllTasks().isEmpty() || !getAllEpicTasks().isEmpty() || !getAllSubTasks().isEmpty()) {
                 sb.append(HEADER);
             }
             for (Task task: tasks.values()) {
