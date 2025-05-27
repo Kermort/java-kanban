@@ -17,7 +17,7 @@ public class InMemoryHistoryManagerTest {
 
     @BeforeEach
     void init() {
-         tm = new InMemoryTaskManager();
+        tm = new InMemoryTaskManager();
     }
 
     @Test
@@ -122,5 +122,4 @@ public class InMemoryHistoryManagerTest {
         tm.deleteAllEpicTasks();
         assertEquals(tm.getHistory().size(), 0, "история должна быть пустой");
     }
-
 }

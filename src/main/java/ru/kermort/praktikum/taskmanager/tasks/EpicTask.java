@@ -2,11 +2,13 @@ package ru.kermort.praktikum.taskmanager.tasks;
 
 import ru.kermort.praktikum.taskmanager.enums.TaskType;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EpicTask extends Task {
     private final List<Integer> subTasksIds;
+    private LocalDateTime endTime;
 
     public EpicTask(String title, String description) {
         super(title, description);
@@ -17,6 +19,7 @@ public class EpicTask extends Task {
     public EpicTask(EpicTask epicTask) {
         super(epicTask);
         subTasksIds = new ArrayList<>(epicTask.getSubTasksIds());
+        endTime = epicTask.endTime;
     }
 
     public List<Integer> getSubTasksIds() {
@@ -43,5 +46,14 @@ public class EpicTask extends Task {
     public String toString() {
         String s = super.toString();
         return "Epic" + s + ". Количество подзадач: " + subTasksIds.size() + " id подзадач: " + subTasksIds + '}';
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 }
