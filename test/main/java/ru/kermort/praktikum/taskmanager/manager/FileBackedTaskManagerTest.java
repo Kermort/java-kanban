@@ -158,27 +158,32 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @Test
     void saveAndLoadFromFileWithSomeTaskAndStatusChangesTest() {
-        Task t1 = new Task("Заголовок задачи 1", "Описание задачи 1");
+        Task t1 = new Task("Заголовок задачи 1", "Описание задачи 1", TEST_TIME, 10);
         int t1Id = tm.addTask(t1);
         Task t2 = new Task("Заголовок задачи 2", "Описание задачи 2");
         int t2Id = tm.addTask(t2);
         EpicTask ep1 = new EpicTask("Заголовок эпика 1", "Описание эпика 1");
         int ep1Id = tm.addEpicTask(ep1);
-        SubTask st11 = new SubTask("Заголовок подзадачи 1 эпика 1", "Описание подзадачи 1 эпика 1", ep1.getId());
+        SubTask st11 = new SubTask("Заголовок подзадачи 1 эпика 1", "Описание подзадачи 1 эпика 1", ep1Id);
         int st11Id = tm.addSubTask(st11);
         EpicTask ep2 = new EpicTask("Заголовок эпика 2", "Описание эпика 2");
         int ep2Id = tm.addEpicTask(ep2);
-        SubTask st21 = new SubTask("Заголовок подзадачи 1 эпика 2", "Описание подзадачи 1 эпика 2", ep2.getId());
-        SubTask st22 = new SubTask("Заголовок подзадачи 2 эпика 2", "Описание подзадачи 2 эпика 2", ep2.getId());
+        SubTask st21 = new SubTask("Заголовок подзадачи 1 эпика 2", "Описание подзадачи 1 эпика 2", ep2Id, TEST_TIME.plusHours(1), 10);
+        SubTask st22 = new SubTask("Заголовок подзадачи 2 эпика 2", "Описание подзадачи 2 эпика 2", ep2Id, TEST_TIME.plusHours(2), 10);
         int st21Id = tm.addSubTask(st21);
         int st22Id = tm.addSubTask(st22);
+        List<Task> savedPrioritizedTasks = tm.getPrioritizedTasks();
         tm = FileBackedTaskManager.loadFromFile(tm.getFile());
 
+        assertEquals(savedPrioritizedTasks, tm.getPrioritizedTasks(),
+                "После восстановления из файла отсортированный список отличается от начального");
         assertEquals(2, tm.getAllTasks().size(),
                 "После восстановления из файла в менеджере неверное количество задач");
         assertTrue(t1.getTitle().equals(tm.getTask(t1Id).getTitle())
                         && t1.getDescription().equals(tm.getTask(t1Id).getDescription())
-                        && t1.getStatus() == tm.getTask(t1Id).getStatus(),
+                        && t1.getStatus() == tm.getTask(t1Id).getStatus()
+                        && t1.getStartTime().equals(tm.getTask(t1Id).getStartTime())
+                        && t1.getDuration().equals(tm.getTask(t1Id).getDuration()),
                 "некоторые поля задачи 1 после восстановления из файла отличаются");
         assertTrue(t2.getTitle().equals(tm.getTask(t2Id).getTitle())
                         && t2.getDescription().equals(tm.getTask(t2Id).getDescription())
@@ -208,12 +213,16 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertTrue(st21.getTitle().equals(tm.getSubTask(st21Id).getTitle())
                         && st21.getDescription().equals(tm.getSubTask(st21Id).getDescription())
                         && st21.getParentTaskId() == tm.getSubTask(st21Id).getParentTaskId()
-                        && st21.getStatus() == tm.getSubTask(st21Id).getStatus(),
+                        && st21.getStatus() == tm.getSubTask(st21Id).getStatus()
+                        && st21.getStartTime().equals(tm.getSubTask(st21Id).getStartTime())
+                        && st21.getDuration().equals(tm.getSubTask(st21Id).getDuration()),
                 "некоторые поля подзадачи 1 эпика 2 после восстановления из файла отличаются");
         assertTrue(st22.getTitle().equals(tm.getSubTask(st22Id).getTitle())
                         && st22.getDescription().equals(tm.getSubTask(st22Id).getDescription())
                         && st22.getParentTaskId() == tm.getSubTask(st22Id).getParentTaskId()
-                        && st22.getStatus() == tm.getSubTask(st22Id).getStatus(),
+                        && st22.getStatus() == tm.getSubTask(st22Id).getStatus()
+                        && st22.getStartTime().equals(tm.getSubTask(st22Id).getStartTime())
+                        && st22.getDuration().equals(tm.getSubTask(st22Id).getDuration()),
                 "некоторые поля подзадачи 2 эпика 2 после восстановления из файла отличаются");
 
         st11.setStatus(TaskStatus.DONE);

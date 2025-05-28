@@ -2,11 +2,14 @@ package ru.kermort.praktikum.taskmanager.tasks;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
 import ru.kermort.praktikum.taskmanager.enums.TaskType;
 
 public class Task implements Comparable<Task> {
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+
     protected String title;
     protected String description;
     protected int id;
@@ -54,11 +57,25 @@ public class Task implements Comparable<Task> {
 
     @Override
     public String toString() {
+        String startTime;
+        if (this.startTime == null) {
+            startTime = "null";
+        } else {
+            startTime = this.startTime.format(DATE_FORMATTER);
+        }
+        String duration;
+        if (this.duration == null) {
+            duration = "null";
+        } else {
+            duration = String.valueOf(this.duration);
+        }
         return "Task{" +
                 "title='" + title + '\'' +
                 ", id=" + id +
                 ", status=" + status +
                 ", description='" + description + "'" +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
                 '}';
     }
 

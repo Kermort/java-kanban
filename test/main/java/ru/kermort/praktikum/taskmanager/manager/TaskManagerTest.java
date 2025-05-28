@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
     protected T tm;
-    private final LocalDateTime TEST_TIME = LocalDateTime.of(2025, 6, 1, 10, 0);
+    protected final LocalDateTime TEST_TIME = LocalDateTime.of(2025, 6, 1, 10, 0);
 
     //a. Все подзадачи со статусом NEW.
     @Test
@@ -302,7 +302,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void addSubTaskWithTimeAdnDurationTest() {
+    void addSubTaskWithTimeAndDurationTest() {
         EpicTask et = new EpicTask("et", "d et");
         int etId = tm.addEpicTask(et);
         SubTask st = new SubTask("st", "d st", etId, TEST_TIME, 10);
@@ -553,5 +553,57 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         tm.deleteAllSubTasks();
         assertEquals(0, tm.getPrioritizedTasks().size(),
                 "при вызове метода deleteAllSubTasks, подзадачи не удалены из списка отсортированных задач");
+    }
+
+    @Test
+    public void updateEpicTimeAndDurationTest() {
+        EpicTask et = new EpicTask("et", "d et");
+        int etId = tm.addEpicTask(et);
+        SubTask st1 = new SubTask("st1", "d st1", etId, TEST_TIME, 10);
+        SubTask st2 = new SubTask("st2", "d st2", etId, TEST_TIME.plusHours(1), 15);
+        SubTask st3 = new SubTask("st3", "d st3", etId, TEST_TIME.plusHours(2), 25);
+        int st1Id = tm.addSubTask(st1);
+        int st2Id = tm.addSubTask(st2);
+        int st3Id = tm.addSubTask(st3);
+
+        assertEquals(TEST_TIME, tm.getEpicTask(etId).getStartTime(),
+                "Начальное время эпика установлено неверно");
+        assertEquals(TEST_TIME.plusHours(2).plusMinutes(25), tm.getEpicTask(etId).getEndTime(),
+                "Конечное время эпика рассчитывается неверно");
+        assertEquals(Duration.ofMinutes(50), tm.getEpicTask(etId).getDuration(),
+                "Длительность эпика установлена неверно");
+
+        tm.deleteSubTask(st1Id);
+        assertEquals(TEST_TIME.plusHours(1), tm.getEpicTask(etId).getStartTime(),
+                "После удаления самой ранней подзадачи начальное время эпика рассчитано неверно");
+        assertEquals(TEST_TIME.plusHours(2).plusMinutes(25), tm.getEpicTask(etId).getEndTime(),
+                "После удаления самой ранней подзадачи конечное время эпика рассчитывается неверно");
+        assertEquals(Duration.ofMinutes(40), tm.getEpicTask(etId).getDuration(),
+                "После удаления самой ранней подзадачи длительность эпика рассчитана неверно");
+
+        tm.deleteSubTask(st3Id);
+        assertEquals(TEST_TIME.plusHours(1), tm.getEpicTask(etId).getStartTime(),
+                "После удаления самой поздней подзадачи начальное время эпика рассчитано неверно");
+        assertEquals(TEST_TIME.plusHours(1).plusMinutes(15), tm.getEpicTask(etId).getEndTime(),
+                "После удаления самой поздней подзадачи конечное время эпика рассчитывается неверно");
+        assertEquals(Duration.ofMinutes(15), tm.getEpicTask(etId).getDuration(),
+                "После удаления самой поздней подзадачи длительность эпика рассчитана неверно");
+
+        SubTask st4 = new SubTask("st4", "d st4", etId);
+        int st4Id = tm.addSubTask(st4);
+        assertEquals(TEST_TIME.plusHours(1), tm.getEpicTask(etId).getStartTime(),
+                "После добавления подзадачи без начального времени и длительности начальное время эпика рассчитано неверно");
+        assertEquals(TEST_TIME.plusHours(1).plusMinutes(15), tm.getEpicTask(etId).getEndTime(),
+                "После добавления подзадачи без начального времени и длительности конечное время эпика рассчитывается неверно");
+        assertEquals(Duration.ofMinutes(15), tm.getEpicTask(etId).getDuration(),
+                "После добавления подзадачи без начального времени и длительности длительность эпика рассчитана неверно");
+
+        tm.deleteSubTask(st4Id);
+        assertEquals(TEST_TIME.plusHours(1), tm.getEpicTask(etId).getStartTime(),
+                "После удаления подзадачи без начального времени и длительности начальное время эпика рассчитано неверно");
+        assertEquals(TEST_TIME.plusHours(1).plusMinutes(15), tm.getEpicTask(etId).getEndTime(),
+                "После удаления подзадачи без начального времени и длительности конечное время эпика рассчитывается неверно");
+        assertEquals(Duration.ofMinutes(15), tm.getEpicTask(etId).getDuration(),
+                "После удаления подзадачи без начального времени и длительности длительность эпика рассчитана неверно");
     }
 }
