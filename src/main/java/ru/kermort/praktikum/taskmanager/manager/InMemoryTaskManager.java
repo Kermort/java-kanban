@@ -1,6 +1,7 @@
 package ru.kermort.praktikum.taskmanager.manager;
 
 import ru.kermort.praktikum.taskmanager.exceptions.CrossTaskException;
+import ru.kermort.praktikum.taskmanager.exceptions.NotFoundException;
 import ru.kermort.praktikum.taskmanager.history.HistoryManager;
 import ru.kermort.praktikum.taskmanager.tasks.*;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
@@ -31,6 +32,15 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<SubTask> getAllSubTasks() {
         return new ArrayList<>(subTasks.values());
+    }
+
+    public List<SubTask> getEpicSubTasks(int epicId) {
+        if (!epicTasks.containsKey(epicId)) {
+            throw new NotFoundException("Эпик с id " + epicId + " не найден");
+        }
+        return epicTasks.get(epicId).getSubTasksIds().stream()
+                .map(subTasks::get)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -75,6 +85,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTask(int id) {
+        if (!tasks.containsKey(id)) {
+            throw new NotFoundException("Задача с id " + id + " не найдена");
+        }
         if (tasks.get(id).hasTimeAndDuration()) {
             prioritizedTasks.remove(tasks.get(id));
         }
@@ -85,7 +98,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpicTask(int id) {
         if (!epicTasks.containsKey(id)) {
-            return;
+            throw new NotFoundException("Эпик с id " + id + " не найден");
         }
 
         epicTasks.get(id).getSubTasksIds()
@@ -103,7 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubTask(int id) {
         if (!subTasks.containsKey(id)) {
-            return;
+            throw new NotFoundException("Подзадача с id " + id + " не найдена");
         }
 
         if (subTasks.get(id).hasTimeAndDuration()) {
@@ -120,7 +133,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int id) {
         if (!tasks.containsKey(id)) {
-            return null;
+            throw new NotFoundException("Задача с id " + id + " не найдена");
         }
 
         historyManager.add(tasks.get(id));
@@ -130,7 +143,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public EpicTask getEpicTask(int id) {
         if (!epicTasks.containsKey(id)) {
-            return null;
+            throw new NotFoundException("Эпик с id " + id + " не найден");
         }
 
         historyManager.add(epicTasks.get(id));
@@ -140,7 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask getSubTask(int id) {
         if (!subTasks.containsKey(id)) {
-            return null;
+            throw new NotFoundException("Подзадача с id " + id + " не найдена");
         }
 
         historyManager.add(subTasks.get(id));
@@ -168,7 +181,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int addSubTask(SubTask newSubTask) {
         if (!epicTasks.containsKey(newSubTask.getParentTaskId())) {
-            return -1;
+            throw new NotFoundException("Епик с id " + newSubTask.getParentTaskId() + " не найден");
         }
         if (checkCross(newSubTask)) {
             String message = "Невозможно добавить подзадачу с временем начала "
@@ -204,7 +217,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (!tasks.containsKey(task.getId())) {
-            return;
+            throw new NotFoundException("Задача с id " + task.getId() + " не найдена");
         }
         if (checkCross(task)) {
             String message = "Невозможно установить время начала задачи  "
@@ -226,7 +239,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubTask(SubTask subTask) {
         if (!subTasks.containsKey(subTask.getId())) {
-            return;
+            throw new NotFoundException("Подзадача с id " + subTask.getId() + " не найдена");
         }
 
         if (checkCross(subTask)) {
@@ -254,7 +267,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpicTask(EpicTask epicTask) {
         if (!epicTasks.containsKey(epicTask.getId())) {
-            return;
+            throw new NotFoundException("Эпик с id " + epicTask.getId() + " не найден");
         }
         epicTasks.get(epicTask.getId()).setTitle(epicTask.getTitle());
         epicTasks.get(epicTask.getId()).setDescription(epicTask.getDescription());
@@ -351,7 +364,7 @@ public class InMemoryTaskManager implements TaskManager {
      * @param subTask добавляемая или обновляемая подзадача
      */
     protected void updateEpicTaskDuration(EpicTask epicTask, SubTask subTask, Duration oldSubTaskDuration) {
-        if (epicTask.getDuration() != null) {
+        if (epicTask.getDuration() != null && oldSubTaskDuration != null) {
             epicTask.setDuration(epicTask.getDuration().minus(oldSubTaskDuration));
             if (epicTask.getDuration().isZero()) {
                 epicTask.setDuration(null);

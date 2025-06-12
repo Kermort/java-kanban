@@ -35,8 +35,6 @@ public class InMemoryHistoryManagerTest {
                 "измененная задача в истории тоже изменена");
         assertNotEquals(taskFromHistory.getDescription(), updatedTaskFromManager.getDescription(),
                 "измененная задача в истории тоже изменена");
-        System.out.println(updatedTaskFromManager);
-        System.out.println(taskFromHistory);
     }
 
     @Test
