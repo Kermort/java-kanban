@@ -64,46 +64,5 @@ public class HttpTaskServer {
     }
 }
 
-class DurationAdapter extends TypeAdapter<Duration> {
 
-    @Override
-    public void write(final JsonWriter jsonWriter, final Duration duration) throws IOException {
-        if (duration == null) {
-            jsonWriter.nullValue();
-        } else {
-            jsonWriter.value(duration.toMinutes());
-        }
-    }
 
-    @Override
-    public Duration read(final JsonReader jsonReader) throws IOException {
-        if (jsonReader.peek() != JsonToken.NULL) {
-            return Duration.ofMinutes(jsonReader.nextLong());
-        } else {
-            jsonReader.nextNull();
-            return null;
-        }
-    }
-}
-
-class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
-
-    @Override
-    public void write(final JsonWriter jsonWriter, final LocalDateTime localDateTime) throws IOException {
-        if (localDateTime == null) {
-            jsonWriter.nullValue();
-        } else {
-            jsonWriter.value(localDateTime.format(FileBackedTaskManager.DATE_FORMATTER));
-        }
-    }
-
-    @Override
-    public LocalDateTime read(final JsonReader jsonReader) throws IOException {
-        if (jsonReader.peek() != JsonToken.NULL) {
-            return LocalDateTime.parse(jsonReader.nextString(), FileBackedTaskManager.DATE_FORMATTER);
-        } else {
-            jsonReader.nextNull();
-            return null;
-        }
-    }
-}
