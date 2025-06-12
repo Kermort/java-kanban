@@ -11,11 +11,12 @@ import ru.kermort.praktikum.taskmanager.tasks.Task;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class TaskHandler extends BaseHttpHandler{
+public class TaskHandler extends BaseHttpHandler {
+    private final Gson gson = HttpTaskServer.getGson();
+
     public TaskHandler(TaskManager tm) {
         super(tm);
     }
-    private final Gson gson = HttpTaskServer.getGson();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
