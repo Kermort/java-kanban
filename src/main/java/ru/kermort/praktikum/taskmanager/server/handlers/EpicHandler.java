@@ -1,20 +1,17 @@
 package ru.kermort.praktikum.taskmanager.server.handlers;
 
-import com.google.gson.Gson;
+
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
-import ru.kermort.praktikum.taskmanager.HttpTaskServer;
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
 import ru.kermort.praktikum.taskmanager.exceptions.CrossTaskException;
 import ru.kermort.praktikum.taskmanager.exceptions.NotFoundException;
 import ru.kermort.praktikum.taskmanager.manager.TaskManager;
 import ru.kermort.praktikum.taskmanager.tasks.EpicTask;
-import ru.kermort.praktikum.taskmanager.tasks.Task;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class EpicHandler extends BaseHttpHandler {
-    private final Gson gson = HttpTaskServer.getGson();
-
     public EpicHandler(TaskManager tm) {
         super(tm);
     }
@@ -71,32 +68,19 @@ public class EpicHandler extends BaseHttpHandler {
     private void handlePostMethod(HttpExchange exchange, String[] pathArray) throws IOException,
             CrossTaskException, JsonSyntaxException {
 
-        if (pathArray.length == 2) {
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            int id;
+        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        EpicTask epicTask = gson.fromJson(body, EpicTask.class);
+        if (epicTask == null || !isValidEpicTask(epicTask)) {
+            sendBadRequest(exchange);
+            return;
+        }
 
-            EpicTask epicTask = gson.fromJson(body, EpicTask.class);
-            if (!isValidEpicTask(epicTask)) {
-                sendBadRequest(exchange);
-                return;
-            }
-            id = tm.addEpicTask(epicTask);
+        if (pathArray.length == 2) {
+            int id = tm.addEpicTask(epicTask);
             sendText(exchange, "Эпик добавлен с id " + id, 201);
             return;
         }
 
-        if (pathArray.length == 3) {
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            EpicTask epicTask = gson.fromJson(body, EpicTask.class);
-            int idFromPath = Integer.parseInt(pathArray[2]);
-            if (epicTask.getId() != idFromPath || !isValidEpicTask(epicTask)) {
-                sendBadRequest(exchange);
-                return;
-            }
-            tm.updateEpicTask(epicTask);
-            sendText(exchange, "Эпик обновлен", 201);
-            return;
-        }
         sendBadRequest(exchange);
     }
 
@@ -112,7 +96,7 @@ public class EpicHandler extends BaseHttpHandler {
         sendBadRequest(exchange);
     }
 
-    private boolean isValidEpicTask(Task task) {
-        return task.getTitle() != null && task.getDescription() != null;
+    private boolean isValidEpicTask(EpicTask epicTask) {
+        return epicTask.getTitle() != null && epicTask.getDescription() != null && epicTask.getTaskType() == TaskType.EPIC;
     }
 }

@@ -1,9 +1,8 @@
 package ru.kermort.praktikum.taskmanager.server.handlers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
-import ru.kermort.praktikum.taskmanager.HttpTaskServer;
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
 import ru.kermort.praktikum.taskmanager.exceptions.CrossTaskException;
 import ru.kermort.praktikum.taskmanager.exceptions.NotFoundException;
 import ru.kermort.praktikum.taskmanager.manager.TaskManager;
@@ -12,8 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class TaskHandler extends BaseHttpHandler {
-    private final Gson gson = HttpTaskServer.getGson();
-
     public TaskHandler(TaskManager tm) {
         super(tm);
     }
@@ -62,26 +59,22 @@ public class TaskHandler extends BaseHttpHandler {
 
     private void handlePostMethod(HttpExchange exchange, String[] pathArray) throws IOException,
             CrossTaskException, JsonSyntaxException {
+        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        Task task = gson.fromJson(body, Task.class);
+        if (task == null || !isValidTask(task)) {
+            sendBadRequest(exchange);
+            return;
+        }
 
         if (pathArray.length == 2) {
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            int id;
-
-            Task task = gson.fromJson(body, Task.class);
-            if (!isValidTask(task)) {
-                sendBadRequest(exchange);
-                return;
-            }
-            id = tm.addTask(task);
+            int id = tm.addTask(task);
             sendText(exchange, "Задача добавлена с id " + id, 201);
             return;
         }
 
         if (pathArray.length == 3) {
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            Task task = gson.fromJson(body, Task.class);
             int idFromPath = Integer.parseInt(pathArray[2]);
-            if (task.getId() != idFromPath || !isValidTask(task)) {
+            if (task.getId() != idFromPath) {
                 sendBadRequest(exchange);
                 return;
             }
@@ -105,6 +98,6 @@ public class TaskHandler extends BaseHttpHandler {
     }
 
     private boolean isValidTask(Task task) {
-        return task.getTitle() != null && task.getDescription() != null;
+        return task.getTitle() != null && task.getDescription() != null && task.getTaskType() == TaskType.TASK;
     }
 }

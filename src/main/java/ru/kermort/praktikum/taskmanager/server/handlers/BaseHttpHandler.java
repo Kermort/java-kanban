@@ -1,17 +1,20 @@
 package ru.kermort.praktikum.taskmanager.server.handlers;
 
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import ru.kermort.praktikum.taskmanager.HttpTaskServer;
 import ru.kermort.praktikum.taskmanager.manager.TaskManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public abstract class BaseHttpHandler implements HttpHandler {
+    protected final Gson gson = HttpTaskServer.getGson();
     protected TaskManager tm;
 
-    public BaseHttpHandler(TaskManager tm) {
+    protected BaseHttpHandler(TaskManager tm) {
         this.tm = tm;
     }
 

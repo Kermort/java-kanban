@@ -1,9 +1,8 @@
 package ru.kermort.praktikum.taskmanager.server.handlers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.sun.net.httpserver.HttpExchange;
-import ru.kermort.praktikum.taskmanager.HttpTaskServer;
+import ru.kermort.praktikum.taskmanager.enums.TaskType;
 import ru.kermort.praktikum.taskmanager.exceptions.CrossTaskException;
 import ru.kermort.praktikum.taskmanager.exceptions.NotFoundException;
 import ru.kermort.praktikum.taskmanager.manager.TaskManager;
@@ -12,8 +11,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class SubTaskHandler extends BaseHttpHandler {
-    private final Gson gson = HttpTaskServer.getGson();
-
     public SubTaskHandler(TaskManager tm) {
         super(tm);
     }
@@ -59,25 +56,22 @@ public class SubTaskHandler extends BaseHttpHandler {
     }
 
     private void handlePostMethod(HttpExchange exchange, String[] pathArray) throws IOException {
-        if (pathArray.length == 2) {
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            int id;
+        String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        SubTask subTask = gson.fromJson(body, SubTask.class);
+        if (subTask == null || !isValidSubTask(subTask)) {
+            sendBadRequest(exchange);
+            return;
+        }
 
-            SubTask subTask = gson.fromJson(body, SubTask.class);
-            if (!isValidSubTask(subTask)) {
-                sendBadRequest(exchange);
-                return;
-            }
-            id = tm.addSubTask(subTask);
+        if (pathArray.length == 2) {
+            int id = tm.addSubTask(subTask);
             sendText(exchange, "Подзадача добавлена с id " + id, 201);
             return;
         }
 
         if (pathArray.length == 3) {
-            String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-            SubTask subTask = gson.fromJson(body, SubTask.class);
             int idFromPath = Integer.parseInt(pathArray[2]);
-            if (subTask.getId() != idFromPath || !isValidSubTask(subTask)) {
+            if (subTask.getId() != idFromPath) {
                 sendBadRequest(exchange);
                 return;
             }
@@ -99,6 +93,7 @@ public class SubTaskHandler extends BaseHttpHandler {
     }
 
     private boolean isValidSubTask(SubTask subTask) {
-        return subTask.getTitle() != null && subTask.getDescription() != null && subTask.getParentTaskId() != 0;
+        return subTask.getTitle() != null && subTask.getDescription() != null && subTask.getParentTaskId() != 0 &&
+                subTask.getTaskType() == TaskType.SUBTASK;
     }
 }

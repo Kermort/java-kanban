@@ -187,27 +187,6 @@ public class EpicHandlerTest {
                 e1.getId() == epicTaskFromManager.getId(), "Эпики не совпадают");
     }
 
-    //Обновление эпика
-    @Test
-    public void postUpdateEpicTaskTest() throws IOException, InterruptedException {
-        EpicTask e1 = new EpicTask("e1", "d e1");
-        int e1Id = tm.addEpicTask(e1);
-        EpicTask e1upd = new EpicTask("e1upd", "d e1upd");
-        e1upd.setId(1);
-        String epicJson = gson.toJson(e1upd);
-
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/epics/" + e1Id);
-        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(HttpRequest.BodyPublishers.ofString(epicJson)).build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        EpicTask epicTaskFromManager = tm.getEpicTask(1);
-        assertEquals(201, response.statusCode(), "Не верный код ответа");
-
-        assertTrue(e1upd.getTitle().equals(epicTaskFromManager.getTitle()) &&
-                e1upd.getDescription().equals(epicTaskFromManager.getDescription()) &&
-                e1upd.getId() == epicTaskFromManager.getId(), "Эпики не совпадают");
-    }
-
     //Удаление эпика
     @Test
     public void deleteEpicTaskTest() throws IOException, InterruptedException {

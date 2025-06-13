@@ -233,7 +233,4 @@ public class TaskHandlerTest {
 
         assertEquals(0, tm.getAllTasks().size(), "Задача не удалена");
     }
-
-    //TODO переместить тест куда-нибудь в более подходящее место
-
 }
