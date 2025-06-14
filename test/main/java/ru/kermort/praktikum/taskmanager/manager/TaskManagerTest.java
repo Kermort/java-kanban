@@ -3,10 +3,10 @@ package ru.kermort.praktikum.taskmanager.manager;
 import org.junit.jupiter.api.Test;
 import ru.kermort.praktikum.taskmanager.enums.TaskStatus;
 import ru.kermort.praktikum.taskmanager.exceptions.CrossTaskException;
+import ru.kermort.praktikum.taskmanager.exceptions.NotFoundException;
 import ru.kermort.praktikum.taskmanager.tasks.EpicTask;
 import ru.kermort.praktikum.taskmanager.tasks.SubTask;
 import ru.kermort.praktikum.taskmanager.tasks.Task;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -191,7 +191,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         int t1Id = tm.addTask(t1);
         tm.deleteTask(t1Id);
 
-        assertNull(tm.getTask(t1Id), "метод deleteTask не удалил задачу");
+        assertThrows(NotFoundException.class, () -> tm.getTask(t1Id), "метод deleteTask не удалил задачу");
     }
 
     @Test
@@ -203,7 +203,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         tm.deleteEpicTask(et1Id);
         List<SubTask> allSubTasks = tm.getAllSubTasks();
 
-        assertNull(tm.getEpicTask(et1Id), "метод deleteEpicTask не удалил эпик");
+        assertThrows(NotFoundException.class, () -> tm.getEpicTask(et1Id), "метод deleteEpicTask не удалил эпик");
         assertEquals(0, allSubTasks.size(), "метод deleteEpicTask не удалил связанную с эпиком подзадачу");
     }
 
@@ -216,7 +216,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         tm.deleteSubTask(st1Id);
         List<Integer> subTasksIdsInEpic = tm.getEpicTask(etId).getSubTasksIds();
 
-        assertNull(tm.getSubTask(st1Id), "метод deleteSubTask не удалил подзадачу");
+        assertThrows(NotFoundException.class, () -> tm.getSubTask(st1Id), "метод deleteSubTask не удалил подзадачу");
         assertEquals(0, subTasksIdsInEpic.size(), "метод deleteSubTask не удалил id подзадачи в эпике");
     }
 
@@ -426,9 +426,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void nonExistentTasksTest() {
-        assertNull(tm.getTask(999), "менеджер возвращает задачу по id, который не существует");
-        assertNull(tm.getEpicTask(999), "менеджер возвращает эпик по id, который не существует");
-        assertNull(tm.getSubTask(999), "менеджер возвращает подзадачу по id, который не существует");
+        assertThrows(NotFoundException.class, () -> tm.getTask(999), "менеджер возвращает задачу по id, который не существует");
+        assertThrows(NotFoundException.class, () -> tm.getEpicTask(999), "менеджер возвращает эпик по id, который не существует");
+        assertThrows(NotFoundException.class, () -> tm.getSubTask(999), "менеджер возвращает подзадачу по id, который не существует");
     }
 
     @Test
